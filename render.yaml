@@ -1,0 +1,33 @@
+# Render Blueprint — deploy via dashboard.render.com (New -> Blueprint)
+# or `render blueprint launch`.
+services:
+  - type: web
+    name: vam-backend
+    runtime: docker
+    plan: starter
+    region: singapore
+    dockerContext: .
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: DATABASE_SSL
+        value: "true"
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_EXPIRES_IN
+        value: 1d
+      - key: APP_TIMEZONE
+        value: Asia/Kolkata
+      - key: ALLOWED_ORIGINS
+        value: "*"
+      - key: LOGIN_RATE_MAX
+        value: "20"
+      - key: API_RATE_MAX
+        value: "500"
+      - key: PGPOOL_MAX
+        value: "10"
