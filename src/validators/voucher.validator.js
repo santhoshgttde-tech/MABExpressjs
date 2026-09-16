@@ -26,13 +26,44 @@ const summaryQuerySchema = z.object({
   date: dateSchema.optional(),
 });
 
-const listQuerySchema = z.object({
-  status: z.enum(VOUCHER_STATUSES).optional(),
-  date: dateSchema.optional(),
-  page: z.coerce.number().int().min(1).default(1),
-  limit: z.coerce.number().int().min(1).max(100).default(20),
-  search: z.string().trim().max(100).optional(),
-});
+const listQuerySchema = z
+  .object({
+    status: z.enum(VOUCHER_STATUSES).optional(),
+    date: dateSchema.optional(),
+    from: dateSchema.optional(),
+    to: dateSchema.optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    limit: z.coerce.number().int().min(1).max(100).default(20),
+    search: z.string().trim().max(100).optional(),
+  })
+  .superRefine((value, ctx) => {
+    const hasRange = value.from !== undefined || value.to !== undefined;
+    if (value.date && hasRange) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['date'],
+        message: 'Use either date or from/to, not both.',
+      });
+    }
+    if (hasRange && (value.from === undefined || value.to === undefined)) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['from'],
+        message: 'Both from and to are required for a date range.',
+      });
+    }
+    if (value.from !== undefined && value.to !== undefined) {
+      const from = new Date(`${value.from}T00:00:00Z`);
+      const to = new Date(`${value.to}T00:00:00Z`);
+      if (from.getTime() > to.getTime()) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['to'],
+          message: 'to must be on or after from.',
+        });
+      }
+    }
+  });
 
 const fallbackBlank = (value) => {
   if (typeof value === 'string' && value.trim().length === 0) return undefined;

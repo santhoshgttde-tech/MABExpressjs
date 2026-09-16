@@ -110,6 +110,23 @@ router.get(
  *           type: string
  *           format: date
  *         example: '2026-09-12'
+ *         description: Single local business date in YYYY-MM-DD. Mutually exclusive with from/to.
+ *       - in: query
+ *         name: from
+ *         required: false
+ *         schema:
+ *           type: string
+ *           format: date
+ *         example: '2026-09-01'
+ *         description: Start of an inclusive date range (YYYY-MM-DD). Requires `to`.
+ *       - in: query
+ *         name: to
+ *         required: false
+ *         schema:
+ *           type: string
+ *           format: date
+ *         example: '2026-09-15'
+ *         description: End of an inclusive date range (YYYY-MM-DD). Requires `from`.
  *       - in: query
  *         name: search
  *         required: false

@@ -29,4 +29,18 @@ function getDayBounds(dateValue) {
   };
 }
 
-module.exports = { getAppZone, getTodayStart, parseLocalDate, getDayBounds };
+/// Resolves list filters into an inclusive local-day bounds pair.
+/// - `date` (single day) wins when provided.
+/// - otherwise `from`/`to` (inclusive range) when both are provided.
+/// - otherwise defaults to today.
+function getRangeBounds({ date, from, to }) {
+  if (date) return getDayBounds(date);
+  if (from && to) {
+    const start = parseLocalDate(from);
+    const end = parseLocalDate(to).plus({ days: 1 });
+    return { start: start.toJSDate(), end: end.toJSDate() };
+  }
+  return getDayBounds(undefined);
+}
+
+module.exports = { getAppZone, getTodayStart, parseLocalDate, getDayBounds, getRangeBounds };

@@ -349,6 +349,33 @@ describe('Voucher list', () => {
     expect(res.body.pagination.total).toBe(4);
   });
 
+  test('filters by inclusive date range', async () => {
+    const res = await request(app)
+      .get(`/api/companies/${company.company_id}/vouchers?from=${yesterday()}&to=${today()}`)
+      .set(helpers.auth(token));
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(4);
+  });
+
+  test('rejects a single-sided date range', async () => {
+    const res = await request(app)
+      .get(`/api/companies/${company.company_id}/vouchers?from=${today()}`)
+      .set(helpers.auth(token));
+
+    expect(res.status).toBe(400);
+    expect(res.body.errorCode).toBe('VALIDATION_ERROR');
+  });
+
+  test('rejects an inverted date range', async () => {
+    const res = await request(app)
+      .get(`/api/companies/${company.company_id}/vouchers?from=${today()}&to=${yesterday()}`)
+      .set(helpers.auth(token));
+
+    expect(res.status).toBe(400);
+    expect(res.body.errorCode).toBe('VALIDATION_ERROR');
+  });
+
   test('searches by party ledger name', async () => {
     const res = await request(app)
       .get(`/api/companies/${company.company_id}/vouchers?search=Beta`)

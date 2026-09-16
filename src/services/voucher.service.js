@@ -1,5 +1,5 @@
 const { AppError } = require('../utils/AppError');
-const { getDayBounds } = require('../utils/timezone');
+const { getDayBounds, getRangeBounds } = require('../utils/timezone');
 const { withTransaction } = require('../config/database');
 const { VOUCHER_STATUS } = require('../constants');
 const voucherRepository = require('../repositories/voucher.repository');
@@ -36,7 +36,11 @@ async function getSummary({ companyIds, companyId, date }) {
 
 async function listVouchers({ companyIds, companyId, query }) {
   assertCompanyAccess(companyIds, companyId);
-  const bounds = getDayBounds(query.date);
+  const bounds = getRangeBounds({
+    date: query.date,
+    from: query.from,
+    to: query.to,
+  });
 
   const { rows, total } = await voucherRepository.listVouchers({
     companyId,
